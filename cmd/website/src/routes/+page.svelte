@@ -3,6 +3,10 @@
 	import { Badge, Indicator } from 'flowbite-svelte';
 </script>
 
+<svelte:head>
+	<title>InsightWave | Real Time Metrics for Internal Tools</title>
+</svelte:head>
+
 <main class="bg-gradient-to-b from-white via-slate-100 to-slate-100 px-4">
 	<seciton class="flex flex-col items-center justify-between container max-w-5xl mx-auto">
 		<div class="text-left mx-auto my-20 md:my-32">
@@ -16,8 +20,8 @@
 				>
 			</h1>
 			<p class="text-2xl text-neutral-600">
-				Embed customizable dashboards for you and your customers directly on your SaaS website.
-				Visualize your metrics in real-time and optimize your business for success.
+				Monitor events and actions fron your internal tools. Embed customizable dashboards to
+				visualize your metrics in real-time and optimize your business for success.
 			</p>
 			<div class="max-w-xl mr-auto mt-16">
 				<LaunchListSignup />

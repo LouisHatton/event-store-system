@@ -28,6 +28,7 @@
 	class="launchlist-form flex flex-row gap-x-2"
 	action="https://getlaunchlist.com/s/irFrVk"
 	method="POST"
+	data-netlify="true"
 >
 	<input
 		bind:value={email}
