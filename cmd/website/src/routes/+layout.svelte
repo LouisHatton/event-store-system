@@ -30,11 +30,11 @@
 				<a href="/#" class="hover:underline">Privacy Policy</a>
 				<a href="/#" class="hover:underline">Terms of Service</a>
 			</div>
-			<div>
+			<!-- <div>
 				<a href="https://twitter.com/thedev_louis" target="_blank">
 					<TwitterIcon class="w-6 fill-current text-neutral-600 hover:text-neutral-700" />
 				</a>
-			</div>
+			</div> -->
 		</div>
 	</section>
 </footer>
