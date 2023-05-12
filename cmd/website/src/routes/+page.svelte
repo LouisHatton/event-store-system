@@ -49,7 +49,7 @@
 		<div>
 			<h2 class="text-5xl font-semibold text-neutral-800">Visibility Everywhere.</h2>
 			<p class="text-2xl text-neutral-600 mt-4">
-				Keep in the loop on what is happening accross your business
+				Keep in the loop on what is happening across your business
 			</p>
 		</div>
 		<div class="grid md:grid-cols-2 grid-rows-2 gap-4 md:gap-8 mt-10 md:mt-12">
