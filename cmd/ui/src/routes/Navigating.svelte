@@ -6,14 +6,21 @@
 	$: if ($navigating) startLoad();
 	else stopLoad();
 
-	let loaderStyle = 'fixed top-0 h-2 bg-amber-500 dark:bg-amber-600';
+	let loaderStyle = 'fixed top-0 left-0 right-0 h-2 bg-amber-500 dark:bg-amber-600 z-50';
 
 	let loading = true;
 	let loadingComplete = false;
 	let loadingProgress = 0;
 
+	$: if (loadingProgress > 100) {
+		loadingProgress = 100;
+	}
+
 	let loadingInterval: NodeJS.Timer;
 
+	/**
+	 * This loading bar lasts around 24 seconds before reaching the end.
+	 */
 	async function startLoad() {
 		if (loading) return;
 		clearInterval(loadingInterval);
@@ -27,10 +34,10 @@
 		loadingInterval = setInterval(() => {
 			if (loading) {
 				loadingProgress += increment;
-				increment = increment / multiplier;
-				multiplier -= 0.0005;
+				if (increment > 0.2) increment = increment / multiplier;
+				if (multiplier > 0.1) multiplier -= 0.0005;
 			}
-			if (loadingProgress > 100) {
+			if (loadingProgress >= 100) {
 				clearInterval(loadingInterval);
 			}
 		}, 100);
@@ -44,7 +51,7 @@
 		loading = true;
 		loadingInterval = setInterval(() => {
 			if (loading) loadingProgress += 25;
-			if (loadingProgress > 100) {
+			if (loadingProgress >= 100) {
 				clearInterval(loadingInterval);
 				setTimeout(() => {
 					loadingComplete = false;
@@ -64,7 +71,8 @@
 	<div
 		class={classnames(
 			loaderStyle,
-			`${loading ? 'transition-all ease-linear duration-700' : 'hidden'}`
+			`${loading ? 'transition-all ease-linear duration-700' : 'hidden'}`,
+			`${loading && loadingProgress > 100 ? 'animate-pulse' : ''}`
 		)}
 		style={`width: ${loadingProgress.toString()}%;`}
 	/>

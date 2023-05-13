@@ -3,10 +3,11 @@
 </script>
 
 <section
-	class="min-h-screen flex flex-row w-full bg-zinc-100 text-zinc-800 dark:bg-zinc-950 dark:text-zinc-50"
+	class="min-h-screen max-w-full flex flex-row w-full bg-zinc-50 text-zinc-800 dark:bg-gray-700 dark:text-zinc-50"
 >
 	<Sidebar />
-	<div>
+
+	<div class="w-full relative">
 		<slot />
 	</div>
 </section>
