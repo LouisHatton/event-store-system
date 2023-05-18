@@ -1,6 +1,7 @@
 <script lang="ts">
 	import DataBox from '$lib/components/DataBox.svelte';
 	import PageWrapper from '$lib/components/PageWrapper.svelte';
+	import ToastHandler from './ToastHandler.svelte';
 </script>
 
 <PageWrapper>

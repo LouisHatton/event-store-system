@@ -3,14 +3,17 @@
 	import { classnames } from '$lib/util';
 	import { tick } from 'svelte';
 
-	$: if ($navigating) startLoad();
+	export let externalLoading = false;
+
+	$: if ($navigating || externalLoading) startLoad();
 	else stopLoad();
 
-	let loaderStyle = 'fixed top-0 left-0 right-0 h-2 bg-amber-500 dark:bg-amber-600 z-50';
+	let loaderStyle = 'fixed top-0 left-0 right-0 h-1 bg-amber-500 dark:bg-amber-600 z-50';
 
 	let loading = true;
 	let loadingComplete = false;
 	let loadingProgress = 0;
+	let opacity = 1;
 
 	$: if (loadingProgress > 100) {
 		loadingProgress = 100;
@@ -44,6 +47,7 @@
 	}
 
 	async function stopLoad() {
+		opacity = 1;
 		clearInterval(loadingInterval);
 		loadingComplete = true;
 		loadingProgress = 0;
@@ -53,10 +57,12 @@
 			if (loading) loadingProgress += 25;
 			if (loadingProgress >= 100) {
 				clearInterval(loadingInterval);
+				opacity = 0.5;
 				setTimeout(() => {
+					opacity = 0;
 					loadingComplete = false;
 					loading = false;
-				}, 100);
+				}, 150);
 			}
 		}, 50);
 	}
@@ -65,7 +71,7 @@
 {#if loadingComplete}
 	<div
 		class={classnames(loaderStyle, `transition-all ease-linear duration-75`)}
-		style={`width: ${loadingProgress.toString()}%;`}
+		style={`width: ${loadingProgress.toString()}%;  opacity: ${opacity.toString()};`}
 	/>
 {:else}
 	<div

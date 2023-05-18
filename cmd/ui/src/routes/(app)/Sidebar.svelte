@@ -9,6 +9,7 @@
 	import Settings from '$lib/icons/Settings.svelte';
 	import Speedometer from '$lib/icons/Speedometer.svelte';
 	import Sun from '$lib/icons/Sun.svelte';
+	import AuthenticationService from '$lib/services/AuthenticationService';
 	import { darkMode } from '$lib/stores/darkMode';
 	import SidebarButton from './SidebarButton.svelte';
 	import SidebarIcon from './SidebarIcon.svelte';
@@ -63,7 +64,7 @@
 		<div class="mt-auto">
 			<ProjectPicker />
 			<div
-				class="flex flex-row justify-center gap-x-10 items-center my-4 pt-4 border-t border-gray-200 dark:border-gray-600"
+				class="flex flex-row justify-center gap-x-6 items-center my-4 pt-4 border-t border-gray-200 dark:border-gray-600"
 			>
 				<SidebarIcon on:click={darkMode.toggle}>
 					{#if $darkMode}
@@ -72,7 +73,14 @@
 						<Moon />
 					{/if}
 				</SidebarIcon>
-				<SidebarIcon>
+				<SidebarIcon href="/account-settings">
+					<Settings />
+				</SidebarIcon>
+				<SidebarIcon
+					on:click={() => {
+						AuthenticationService.logOut();
+					}}
+				>
 					<LogOut />
 				</SidebarIcon>
 			</div>
