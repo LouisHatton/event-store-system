@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/LouisHatton/user-audit-saas/internal/events"
-	"github.com/LouisHatton/user-audit-saas/internal/eventstore"
-	"github.com/LouisHatton/user-audit-saas/internal/eventstore/tinybird"
+	"github.com/LouisHatton/insight-wave/internal/events"
+	"github.com/LouisHatton/insight-wave/internal/eventstore"
+	"github.com/LouisHatton/insight-wave/internal/eventstore/tinybird"
 	lambdaevents "github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"go.uber.org/zap"

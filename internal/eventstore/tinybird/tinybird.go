@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/LouisHatton/user-audit-saas/internal/events"
-	"github.com/LouisHatton/user-audit-saas/internal/eventstore"
+	"github.com/LouisHatton/insight-wave/internal/events"
+	"github.com/LouisHatton/insight-wave/internal/eventstore"
 	"github.com/caarlos0/env/v8"
 	"go.uber.org/zap"
 )

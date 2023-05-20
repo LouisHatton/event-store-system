@@ -3,7 +3,7 @@ package eventstore
 import (
 	"time"
 
-	"github.com/LouisHatton/user-audit-saas/internal/events"
+	"github.com/LouisHatton/insight-wave/internal/events"
 )
 
 type Storer interface {

@@ -1,0 +1,10 @@
+services:
+  api:
+    container_name: bigwave_api
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=../../.local/local-secrets.json
+    ports:
+      - 8080:8080
