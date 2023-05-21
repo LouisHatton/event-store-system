@@ -31,7 +31,7 @@
 
 <main class={`${$darkMode ? 'dark' : ''}`}>
 	<Navigating />
-	<ToastHandler />
+	<!-- <ToastHandler /> -->
 	{#if loading}
 		<LoadingScreen />
 	{:else}

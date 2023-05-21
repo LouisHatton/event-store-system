@@ -9,5 +9,13 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ['js-big-decimal']
 	},
-	server: {}
+	server: {
+		proxy: {
+			'/api': {
+				target: 'http://localhost:8080/',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, '')
+			}
+		}
+	}
 });

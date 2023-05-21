@@ -7,6 +7,7 @@
 	import { Button, Input, Label } from 'flowbite-svelte';
 	import UserService from '$lib/services/UserService';
 	import LoadingButton from '$lib/components/LoadingButton.svelte';
+	import AuthenticationService from '$lib/services/AuthenticationService';
 
 	let emailAddress = '';
 	let name = '';
@@ -30,6 +31,10 @@
 		await UserService.updateUser(emailAddress, name);
 		saving = false;
 	}
+
+	async function handleResetPassword() {
+		console.log(await AuthenticationService.getToken());
+	}
 </script>
 
 <PageWrapper>
@@ -48,7 +53,7 @@
 				</div>
 				<div class="flex flex-row justify-between">
 					<LoadingButton color="yellow" loading={saving} on:click={hanldeClick}>Save</LoadingButton>
-					<Button color="light">Change Password</Button>
+					<Button color="light" on:click={handleResetPassword}>Change Password</Button>
 				</div>
 			</div>
 		</Card>

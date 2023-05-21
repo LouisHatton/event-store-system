@@ -7,9 +7,6 @@
 
 	$: active = href === '/' ? $page.url.pathname === href : $page.url.pathname.startsWith(href);
 
-	$: console.log($page.url.pathname, activeClass);
-	$: console.log(active);
-
 	$: activeClass = active ? 'bg-amber-500/10' : '';
 	let hoverClass = 'cursor-pointer hover:bg-amber-500/10 transition-all ease-in-out';
 	let svgClass = 'h-6 w-6 mr-3 fill-current text-zinc-700 dark:text-zinc-200';
