@@ -100,6 +100,8 @@ func (api API) ListProjects(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		logger.Fatal("failed to fetch documents", zap.Error(err))
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
 	}
 
 	render.JSON(w, r, docs)

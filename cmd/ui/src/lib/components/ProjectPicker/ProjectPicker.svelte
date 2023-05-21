@@ -6,8 +6,12 @@
 
 	export let placement = 'top';
 	let open = false;
+	let fetchingProjects = false;
 
-	$: if (!$projectStore) ProjectService.listProjects().then((p) => projectStore.set(p));
+	$: if (!$projectStore && !fetchingProjects) {
+		fetchingProjects = true;
+		ProjectService.listProjects().then((p) => projectStore.set(p));
+	}
 	$: if ($projectStore && !$activeProject) activeProject.set($projectStore[0]);
 
 	function updateActiveProject(id: string) {

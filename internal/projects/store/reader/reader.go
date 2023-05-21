@@ -75,7 +75,7 @@ func (r *Reader) Many(opts query.Options, wheres ...query.Where) (*[]projects.Pr
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all documents: %w", err)
 	}
-	var docs []projects.Project
+	docs := []projects.Project{}
 	for i, snap := range snapshots {
 		docs = append(docs, *projects.Empty())
 		err = snap.DataTo(&docs[i])
