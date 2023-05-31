@@ -12,6 +12,9 @@ import (
 	apiMiddleware "github.com/LouisHatton/insight-wave/internal/api/middleware"
 	"github.com/LouisHatton/insight-wave/internal/config/appconfig"
 	"github.com/LouisHatton/insight-wave/internal/config/enviroment"
+	connectionsStore "github.com/LouisHatton/insight-wave/internal/connections/store"
+	connectionsStoreReader "github.com/LouisHatton/insight-wave/internal/connections/store/reader"
+	connectionsStoreWriter "github.com/LouisHatton/insight-wave/internal/connections/store/writer"
 	projectsStore "github.com/LouisHatton/insight-wave/internal/projects/store"
 	projectsStoreReader "github.com/LouisHatton/insight-wave/internal/projects/store/reader"
 	projectsStoreWriter "github.com/LouisHatton/insight-wave/internal/projects/store/writer"
@@ -26,6 +29,8 @@ type config struct {
 }
 
 func main() {
+
+	// --- ENV & Logging
 	ctx := context.Background()
 	cfg := &config{}
 	if err := env.Parse(cfg); err != nil {
@@ -45,6 +50,7 @@ func main() {
 	}
 	defer logger.Sync()
 
+	// --- GCloud
 	app, err := firebase.NewApp(ctx, &firebase.Config{
 		ProjectID: "insight-wave-dev",
 	})
@@ -57,31 +63,47 @@ func main() {
 		logger.Fatal("error initializing app auth", zap.Error(err))
 	}
 
-	authMiddleware, err := apiMiddleware.New(logger, authClient)
-	if err != nil {
-		logger.Fatal("error initializing auth middleware", zap.Error(err))
-	}
-
 	store, err := app.Firestore(ctx)
 	if err != nil {
 		logger.Fatal("error initializing firestore", zap.Error(err))
 	}
 
-	projectReader, err := projectsStoreReader.New(logger, "projects", store)
+	// --- Middleware
+	authMiddleware, err := apiMiddleware.NewAuth(logger, authClient)
+	if err != nil {
+		logger.Fatal("error initializing auth middleware", zap.Error(err))
+	}
+
+	// --- Projects Store
+	const ProjectStoreCollectionName = "projects"
+	projectReader, err := projectsStoreReader.New(logger, ProjectStoreCollectionName, store)
 	if err != nil {
 		logger.Fatal("error initializing projectsStoreReader", zap.Error(err))
 	}
 
-	projectsWriter, err := projectsStoreWriter.New(logger, "projects", store)
+	projectsWriter, err := projectsStoreWriter.New(logger, ProjectStoreCollectionName, store)
 	if err != nil {
 		logger.Fatal("error initializing projectsStoreReader", zap.Error(err))
 	}
 	projectStore := projectsStore.New(projectReader, projectsWriter)
 
+	// --- Connections Store
+	const ConnectionsStoreCollectionName = "connections"
+	connectionReader, err := connectionsStoreReader.New(logger, ConnectionsStoreCollectionName, store)
+	if err != nil {
+		logger.Fatal("error initializing connectionsStoreReader", zap.Error(err))
+	}
+
+	connectionWriter, err := connectionsStoreWriter.New(logger, ConnectionsStoreCollectionName, store)
+	if err != nil {
+		logger.Fatal("error initializing connectionsStoreWriter", zap.Error(err))
+	}
+	connectionStore := connectionsStore.New(connectionReader, connectionWriter)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	api, err := api.New(logger, cfg.Enviroment.CurrentEnv, authMiddleware, projectStore)
+	api, err := api.New(logger, cfg.Enviroment.CurrentEnv, authMiddleware, projectStore, connectionStore)
 	if err != nil {
 		logger.Fatal("error initializing api", zap.Error(err))
 	}

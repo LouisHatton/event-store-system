@@ -7,24 +7,25 @@ import (
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/LouisHatton/insight-wave/internal/api/responses"
+	internalContext "github.com/LouisHatton/insight-wave/internal/context"
 	"github.com/LouisHatton/insight-wave/internal/users"
 	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
-type Middleware struct {
+type Auth struct {
 	client *auth.Client
 	logger *zap.Logger
 }
 
-func New(l *zap.Logger, client *auth.Client) (*Middleware, error) {
-	return &Middleware{
+func NewAuth(l *zap.Logger, client *auth.Client) (*Auth, error) {
+	return &Auth{
 		client: client,
 		logger: l,
 	}, nil
 }
 
-func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
+func (m *Auth) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -53,7 +54,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		realUser := users.AuthUserRecordToUser(authUser)
-		ctx = users.AddUserToContext(ctx, realUser)
+		ctx = internalContext.AddUserToContext(ctx, realUser)
 
 		next.ServeHTTP(w, r.Clone(ctx))
 	})

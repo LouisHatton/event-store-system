@@ -1,53 +1,31 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/LouisHatton/insight-wave/internal/api/responses"
+	internalContext "github.com/LouisHatton/insight-wave/internal/context"
 	"github.com/LouisHatton/insight-wave/internal/db/query"
 	"github.com/LouisHatton/insight-wave/internal/projects"
-	"github.com/LouisHatton/insight-wave/internal/users"
-	"github.com/LouisHatton/insight-wave/internal/utils"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-const (
-	ProjectIdParam    = "projectId"
-	ProjectUrlParam   = "/{projectId}"
-	ProjectPathPrefix = "/project"
-	CreateProjectPath = ProjectPathPrefix
-	ProjectListPath   = ProjectPathPrefix + "/list"
-	ProjectIdPath     = ProjectPathPrefix + ProjectUrlParam
-)
-
+// Returns the project for the given projectId in the url if the user is a member of
+// the project.
+//
+// Expects the user to be in the request context
 func (api API) GetProject(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUserFromContext(r.Context())
+	ctx := r.Context()
+	user := internalContext.GetUserFromContext(ctx)
 	logger := api.l.With(zap.Any("userId", user.Id))
 
-	id, err := getProjectIdFromUrl(r)
-	if err != nil {
-		api.l.Info("unable to fetch project id from url", zap.Error(err))
+	project, ok := internalContext.GetProjectFromContext(ctx)
+	if !ok {
+		logger.Error("failed to read project from context")
 		render.Render(w, r, responses.NotFoundResponse("project"))
-		return
-	}
-
-	logger = logger.With(zap.Any("projectId", id))
-
-	project, err := api.projectStore.Reader.Get(id)
-	if err != nil {
-		logger.Warn("error getting document", zap.Error(err))
-		render.Render(w, r, responses.NotFoundResponse("project"))
-		return
-	}
-
-	if !utils.Contains(project.AllUsers, user.Id) {
-		logger.Info("user is not in requested project")
-		render.Render(w, r, responses.ErrForbidden())
 		return
 	}
 
@@ -55,7 +33,7 @@ func (api API) GetProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api API) CreateProject(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUserFromContext(r.Context())
+	user := internalContext.GetUserFromContext(r.Context())
 	logger := api.l.With(zap.String("userId", user.Id))
 
 	data := projects.NewProject{}
@@ -90,7 +68,7 @@ func (api API) CreateProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api API) ListProjects(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUserFromContext(r.Context())
+	user := internalContext.GetUserFromContext(r.Context())
 	logger := api.l.With(zap.Any("userId", user.Id))
 
 	docs, err := api.projectStore.Many(query.Options{}, query.Where{
@@ -105,12 +83,4 @@ func (api API) ListProjects(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, docs)
-}
-
-func getProjectIdFromUrl(r *http.Request) (string, error) {
-	if projectId := chi.URLParam(r, ProjectIdParam); projectId != "" {
-		return projectId, nil
-	} else {
-		return "", fmt.Errorf("url does not contain project id: url: %s", r.URL.String())
-	}
 }

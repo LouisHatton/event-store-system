@@ -1,11 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/LouisHatton/insight-wave/internal/api/middleware"
+	"github.com/LouisHatton/insight-wave/internal/api/routes"
 	"github.com/LouisHatton/insight-wave/internal/config/enviroment"
+	connectionsStore "github.com/LouisHatton/insight-wave/internal/connections/store"
 	projectsStore "github.com/LouisHatton/insight-wave/internal/projects/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -17,23 +20,34 @@ type Config struct {
 }
 
 type API struct {
-	l              *zap.Logger
-	config         *Config
-	projectStore   *projectsStore.Manager
-	born           time.Time
-	authMiddleware *middleware.Middleware
+	l                 *zap.Logger
+	config            *Config
+	projectStore      projectsStore.Manager
+	connectionStore   connectionsStore.Manager
+	born              time.Time
+	authMiddleware    middleware.Auth
+	projectMiddleware middleware.Project
 }
 
-func New(logger *zap.Logger, env enviroment.Type, authMiddleware *middleware.Middleware, projectStore *projectsStore.Manager) (*API, error) {
+func New(logger *zap.Logger, env enviroment.Type, authMiddleware *middleware.Auth, projectStore *projectsStore.Manager,
+	connectionStore *connectionsStore.Manager) (*API, error) {
+
+	projectMiddleware, err := middleware.NewProject(logger, &projectStore.Reader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create project middleware: %w", err)
+	}
+
 	cfg := &Config{
 		env: env,
 	}
 	api := API{
-		l:              logger,
-		config:         cfg,
-		projectStore:   projectStore,
-		born:           time.Now(),
-		authMiddleware: authMiddleware,
+		l:                 logger,
+		config:            cfg,
+		projectStore:      *projectStore,
+		connectionStore:   *connectionStore,
+		born:              time.Now(),
+		authMiddleware:    *authMiddleware,
+		projectMiddleware: *projectMiddleware,
 	}
 
 	return &api, nil
@@ -50,11 +64,16 @@ func (api API) Register(r chi.Router) error {
 
 	r.Route("/v1", func(r chi.Router) {
 
-		r.Use(api.authMiddleware.AuthMiddleware)
+		r.Use(api.authMiddleware.Middleware)
 
-		r.Get(ProjectIdPath, api.GetProject)
-		r.Get(ProjectListPath, api.ListProjects)
-		r.Post(ProjectPathPrefix, api.CreateProject)
+		r.With(api.projectMiddleware.Middleware).Get(routes.ProjectIdPath, api.GetProject)
+		r.Get(routes.ProjectPathPrefix, api.ListProjects)
+		r.Post(routes.ProjectPathPrefix, api.CreateProject)
+
+		r.With(api.projectMiddleware.Middleware).Get(routes.ConnectionIdPath, api.GetConnection)
+		r.With(api.projectMiddleware.Middleware).Get(routes.CreateConnectionsPath, api.ListConnections)
+		r.With(api.projectMiddleware.Middleware).Post(routes.CreateConnectionsPath, api.CreateConnection)
+
 	})
 
 	return nil
