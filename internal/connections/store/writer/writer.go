@@ -32,7 +32,7 @@ func (r *Writer) Set(id string, connection *connections.Connection) error {
 
 	logger.Debug("setting connection doc")
 
-	_, err := r.db.Doc(id).Create(context.TODO(), connection)
+	_, err := r.db.Doc(id).Set(context.TODO(), connection)
 	if err != nil {
 		return fmt.Errorf("error getting connection: %w", err)
 	}

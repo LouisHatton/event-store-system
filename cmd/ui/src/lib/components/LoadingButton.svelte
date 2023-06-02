@@ -6,7 +6,7 @@
 	export let color: ButtonColorType;
 </script>
 
-<Button {color} on:click>
+<Button disabled={loading} {color} on:click>
 	{#if loading}
 		<Spinner class="mr-3" size="4" color="white" />
 	{/if}

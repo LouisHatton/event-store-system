@@ -29,7 +29,7 @@
 
 <PageWrapper>
 	<h2 class="text-4xl font-semibold">Connections</h2>
-	<Card class="mt-14">
+	<Card class="mt-8 2xl:mt-14">
 		<div class="flex flex-row justify-between items-center mb-6">
 			<h3 class="text-2xl font-semibold">Your Connections</h3>
 			{#if $activeProject}

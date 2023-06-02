@@ -33,6 +33,13 @@ export class ConnectionService {
 	create(projectId: string, connection: NewConnection): Promise<Connection> {
 		return NetworkService.post(`/api/v1/projects/${projectId}/connections`, connection);
 	}
+
+	set(projectId: string, connectionId: string, connection: NewConnection): Promise<Connection> {
+		return NetworkService.post(
+			`/api/v1/projects/${projectId}/connections/${connectionId}`,
+			connection
+		);
+	}
 }
 
 export default new ConnectionService();

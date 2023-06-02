@@ -123,6 +123,58 @@ func (api *API) ListConnections(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, docs)
 }
 
+func (api *API) EditConnection(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := internalContext.GetUserFromContext(ctx)
+	project, ok := internalContext.GetProjectFromContext(ctx)
+	if !ok {
+		api.l.Error("unable to get project from context")
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
+	}
+	logger := api.l.With(zap.String("userId", user.Id), zap.String("projectId", project.Id))
+
+	newConnection := connections.NewConnection{}
+	if err := render.Decode(r, &newConnection); err != nil {
+		logger.Error("error parsing provided connection data", zap.Error(err))
+		render.Render(w, r, responses.ErrInvalidRequest(err))
+		return
+	}
+
+	id, err := getConnectionIdFromUrl(r)
+	if err != nil {
+		logger.Error("unable to get connection id from url", zap.Error(err))
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+	logger = logger.With(zap.String("connectionId", id))
+
+	connection, err := api.connectionStore.Get(id)
+	if err != nil {
+		logger.Error("error getting document", zap.Error(err))
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+
+	if connection.ProjectId != project.Id {
+		logger.Warn("connection is not a member of the project")
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+
+	connection.Name = newConnection.Name
+	connection.Tags = newConnection.Tags
+
+	if err := api.connectionStore.Set(id, connection); err != nil {
+		logger.Error("failed to store connection", zap.Error(err))
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
+	}
+
+	logger.Info("connection updated")
+	render.JSON(w, r, connection)
+}
+
 func getConnectionIdFromUrl(r *http.Request) (string, error) {
 	if id := chi.URLParam(r, routes.ConnectionIdParam); id != "" {
 		return id, nil

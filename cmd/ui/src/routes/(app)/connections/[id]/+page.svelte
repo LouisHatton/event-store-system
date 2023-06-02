@@ -5,13 +5,36 @@
 	import PageWrapper from '$lib/components/PageWrapper.svelte';
 	import { Button, Input, Label } from 'flowbite-svelte';
 	import { connection } from './store';
+	import LoadingButton from '$lib/components/LoadingButton.svelte';
+	import ConnectionService, { type NewConnection } from '$lib/services/ConnectionService';
 
 	let connectionName = '';
+	let updatingConnection = false;
 
-	$: updateConnectionName($connection?.name ?? '');
-	const updateConnectionName = (name: string) => {
+	$: initConnectionName($connection?.name ?? '');
+	const initConnectionName = (name: string) => {
 		connectionName = name;
 	};
+
+	async function updateConnection() {
+		if (!$connection) return;
+		updatingConnection = true;
+		let updatedConnection: NewConnection = {
+			name: connectionName,
+			tags: $connection.tags
+		};
+		try {
+			$connection = await ConnectionService.set(
+				$connection.projectId,
+				$connection.id,
+				updatedConnection
+			);
+		} catch {
+			alert('failed to update connection, please try again later');
+		} finally {
+			updatingConnection = false;
+		}
+	}
 </script>
 
 <PageWrapper sm>
@@ -35,7 +58,11 @@
 							<Label class="mb-2">Connection Name:</Label>
 							<Input class="mb-4" bind:value={connectionName} />
 							<div>
-								<Button color="yellow">Update</Button>
+								<LoadingButton
+									loading={updatingConnection}
+									color="yellow"
+									on:click={updateConnection}>Update</LoadingButton
+								>
 							</div>
 						</div>
 						<div class="mt-12">

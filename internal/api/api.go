@@ -71,6 +71,7 @@ func (api API) Register(r chi.Router) error {
 		r.Post(routes.ProjectPathPrefix, api.CreateProject)
 
 		r.With(api.projectMiddleware.Middleware).Get(routes.ConnectionIdPath, api.GetConnection)
+		r.With(api.projectMiddleware.Middleware).Post(routes.ConnectionIdPath, api.EditConnection)
 		r.With(api.projectMiddleware.Middleware).Get(routes.CreateConnectionsPath, api.ListConnections)
 		r.With(api.projectMiddleware.Middleware).Post(routes.CreateConnectionsPath, api.CreateConnection)
 
