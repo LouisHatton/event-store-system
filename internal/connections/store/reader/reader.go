@@ -42,17 +42,17 @@ func (r *Reader) Get(id string) (*connections.Connection, error) {
 	logger.Debug("fetched connection doc")
 
 	connection := connections.Empty()
-	err = doc.DataTo(connection)
+	err = doc.DataTo(&connection)
 	if err != nil {
 		return nil, fmt.Errorf("error converting response to connection struct: %w", err)
 	}
 
-	return connection, nil
+	return &connection, nil
 }
 
 func (r *Reader) Many(opts query.Options, wheres ...query.Where) (*[]connections.Connection, error) {
 
-	q := dbFirestore.GenerateQuery(&r.db.Query, opts, wheres...)
+	q := dbFirestore.GenerateQuery(r.db.Query, opts, wheres...)
 
 	itr := q.Documents(context.TODO())
 	snapshots, err := itr.GetAll()
@@ -61,7 +61,7 @@ func (r *Reader) Many(opts query.Options, wheres ...query.Where) (*[]connections
 	}
 	docs := []connections.Connection{}
 	for i, snap := range snapshots {
-		docs = append(docs, *connections.Empty())
+		docs = append(docs, connections.Empty())
 		err = snap.DataTo(&docs[i])
 		if err != nil {
 			return nil, fmt.Errorf("error converting response to connection struct: %w", err)

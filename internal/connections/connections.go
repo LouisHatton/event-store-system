@@ -35,8 +35,8 @@ type NewConnection struct {
 	Tags []string `json:"tags"`
 }
 
-func Empty() *Connection {
-	return &Connection{
+func Empty() Connection {
+	return Connection{
 		Tags:   []string{},
 		Schema: map[string]interface{}{},
 	}

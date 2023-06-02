@@ -9,9 +9,9 @@
 
 	$: activeClass = active ? 'bg-amber-500/10' : '';
 	let hoverClass = 'cursor-pointer hover:bg-amber-500/10 transition-all ease-in-out';
-	let svgClass = 'h-6 w-6 mr-3 fill-current text-zinc-700 dark:text-zinc-200';
+	let svgClass = 'h-5 w-5 2xl:h-6 2xl:w-6 mr-3 fill-current text-zinc-700 dark:text-zinc-200';
 	let baseClass =
-		'text-left flex flex-row items-center px-4 py-3 rounded-2xl text-zinc-800 font-medium text-lg dark:text-zinc-100';
+		'text-left flex flex-row items-center px-4 lg:py-2 2xl:py-3 rounded-lg 2xl:rounded-2xl text-zinc-800 font-medium text-md dark:text-zinc-100';
 </script>
 
 {#if disabled}

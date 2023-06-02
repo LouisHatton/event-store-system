@@ -22,7 +22,7 @@ export type ProjectMetadata = {
 
 export class ProjectService {
 	listProjects(): Promise<Project[]> {
-		return NetworkService.get('/api/v1/project/list');
+		return NetworkService.get('/api/v1/projects');
 	}
 }
 

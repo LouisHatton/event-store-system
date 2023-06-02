@@ -118,6 +118,8 @@ func (api *API) ListConnections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logger.Debug("number of docs returned", zap.Int("count", len(*docs)))
+
 	render.JSON(w, r, docs)
 }
 

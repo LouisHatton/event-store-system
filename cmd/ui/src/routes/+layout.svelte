@@ -9,6 +9,7 @@
 	import ToastHandler from './(app)/ToastHandler.svelte';
 	import Navigating from './Navigating.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
+
 	$: $page.route && checkIfLoggedIn($authStore.initialised);
 	let loading = true;
 
@@ -32,9 +33,10 @@
 <main class={`${$darkMode ? 'dark' : ''}`}>
 	<Navigating />
 	<!-- <ToastHandler /> -->
-	{#if loading}
-		<LoadingScreen />
-	{:else}
+	{#if $authStore.isLoggedIn}
 		<slot />
+		<!-- {/if} -->
+	{:else if loading}
+		<LoadingScreen />
 	{/if}
 </main>
