@@ -33,9 +33,8 @@
 <main class={`${$darkMode ? 'dark' : ''}`}>
 	<Navigating />
 	<!-- <ToastHandler /> -->
-	{#if $authStore.isLoggedIn}
+	{#if $authStore.isLoggedIn || $page.route.id?.includes('(authentication)')}
 		<slot />
-		<!-- {/if} -->
 	{:else if loading}
 		<LoadingScreen />
 	{/if}
