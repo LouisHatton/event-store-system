@@ -6,6 +6,7 @@ export type ApiError = {
 };
 
 function handleNetworkError(r: Response): ApiError {
+	console.log(r);
 	return {
 		status: r.status,
 		message: 'unable to parse error'
@@ -30,7 +31,14 @@ class NetworkService {
 			throw handleNetworkError(response);
 		}
 
-		return (await response.json()) as T;
+		let json: unknown;
+		try {
+			json = await response.json();
+		} catch {
+			json = {};
+		}
+
+		return json as T;
 	}
 
 	async get<T>(route: string) {
@@ -39,6 +47,10 @@ class NetworkService {
 
 	async post<T>(route: string, body: object) {
 		return this.fetch(route, 'POST', body) as T;
+	}
+
+	async delete<T>(route: string) {
+		return this.fetch(route, 'DELETE');
 	}
 }
 

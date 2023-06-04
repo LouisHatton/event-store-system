@@ -7,6 +7,7 @@ import (
 
 type Reader interface {
 	Get(id string) (*projects.Project, error)
+	One(opts query.Options, wheres ...query.Where) (*projects.Project, error)
 	Many(opts query.Options, wheres ...query.Where) (*[]projects.Project, error)
 }
 

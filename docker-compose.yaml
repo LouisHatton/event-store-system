@@ -6,5 +6,18 @@ services:
       dockerfile: ./docker/api/Dockerfile
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=../../.local/local-secrets.json
+    env_file:
+      - .env.local
     ports:
       - 8080:8080
+  event-api:
+    container_name: bigwave_event_api
+    build:
+      context: .
+      dockerfile: ./docker/event-api/Dockerfile
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=../../.local/local-secrets.json
+    env_file:
+      - .env.local
+    ports:
+      - 8081:8080

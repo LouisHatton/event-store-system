@@ -9,6 +9,7 @@ import (
 	"github.com/LouisHatton/insight-wave/internal/api/routes"
 	"github.com/LouisHatton/insight-wave/internal/config/enviroment"
 	connectionsStore "github.com/LouisHatton/insight-wave/internal/connections/store"
+	eventsStore "github.com/LouisHatton/insight-wave/internal/events/store"
 	projectsStore "github.com/LouisHatton/insight-wave/internal/projects/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -27,10 +28,11 @@ type API struct {
 	born              time.Time
 	authMiddleware    middleware.Auth
 	projectMiddleware middleware.Project
+	eventStore        eventsStore.Writer
 }
 
 func New(logger *zap.Logger, env enviroment.Type, authMiddleware *middleware.Auth, projectStore *projectsStore.Manager,
-	connectionStore *connectionsStore.Manager) (*API, error) {
+	connectionStore *connectionsStore.Manager, eventStore *eventsStore.Writer) (*API, error) {
 
 	projectMiddleware, err := middleware.NewProject(logger, &projectStore.Reader)
 	if err != nil {
@@ -48,6 +50,7 @@ func New(logger *zap.Logger, env enviroment.Type, authMiddleware *middleware.Aut
 		born:              time.Now(),
 		authMiddleware:    *authMiddleware,
 		projectMiddleware: *projectMiddleware,
+		eventStore:        *eventStore,
 	}
 
 	return &api, nil
@@ -72,6 +75,7 @@ func (api API) Register(r chi.Router) error {
 
 		r.With(api.projectMiddleware.Middleware).Get(routes.ConnectionIdPath, api.GetConnection)
 		r.With(api.projectMiddleware.Middleware).Post(routes.ConnectionIdPath, api.EditConnection)
+		r.With(api.projectMiddleware.Middleware).Delete(routes.ConnectionIdPath, api.DeleteConnection)
 		r.With(api.projectMiddleware.Middleware).Get(routes.CreateConnectionsPath, api.ListConnections)
 		r.With(api.projectMiddleware.Middleware).Post(routes.CreateConnectionsPath, api.CreateConnection)
 

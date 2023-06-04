@@ -7,11 +7,13 @@ import (
 
 type Reader interface {
 	Get(id string) (*connections.Connection, error)
+	GetByUrl(urlid string) (*connections.Connection, error)
 	Many(opts query.Options, wheres ...query.Where) (*[]connections.Connection, error)
 }
 
 type Writer interface {
 	Set(id string, connection *connections.Connection) error
+	Delete(id string) error
 }
 
 type Manager struct {

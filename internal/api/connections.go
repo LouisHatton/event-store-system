@@ -175,6 +175,56 @@ func (api *API) EditConnection(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, connection)
 }
 
+func (api *API) DeleteConnection(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := internalContext.GetUserFromContext(ctx)
+	project, ok := internalContext.GetProjectFromContext(ctx)
+	if !ok {
+		api.l.Error("unable to get project from context")
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
+	}
+	logger := api.l.With(zap.String("userId", user.Id), zap.String("projectId", project.Id))
+
+	id, err := getConnectionIdFromUrl(r)
+	if err != nil {
+		logger.Error("unable to get connection id from url", zap.Error(err))
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+	logger = logger.With(zap.String("connectionId", id))
+
+	connection, err := api.connectionStore.Get(id)
+	if err != nil {
+		logger.Error("error getting document", zap.Error(err))
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+
+	if connection.ProjectId != project.Id {
+		logger.Warn("connection is not a member of the project")
+		render.Render(w, r, responses.NotFoundResponse("connection"))
+		return
+	}
+
+	err = api.eventStore.DeleteSource(ctx, connection.Id)
+	if err != nil {
+		logger.Warn("failed to delete connection in event store", zap.Error(err))
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
+	}
+
+	err = api.connectionStore.Delete(connection.Id)
+	if err != nil {
+		logger.Error("error deleting connection", zap.Error(err))
+		render.Render(w, r, responses.ErrInternalServerError())
+		return
+	}
+
+	logger.Info("connection deleted")
+	render.Status(r, 200)
+}
+
 func getConnectionIdFromUrl(r *http.Request) (string, error) {
 	if id := chi.URLParam(r, routes.ConnectionIdParam); id != "" {
 		return id, nil

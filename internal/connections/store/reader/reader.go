@@ -50,6 +50,26 @@ func (r *Reader) Get(id string) (*connections.Connection, error) {
 	return &connection, nil
 }
 
+func (r *Reader) GetByUrl(id string) (*connections.Connection, error) {
+	docs, err := r.db.Where("urlId", "==", id).Documents(context.TODO()).GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching all documents: %w", err)
+	}
+
+	if len(docs) > 0 {
+		connection := connections.Empty()
+		doc := docs[0]
+		err := doc.DataTo(&connection)
+		if err != nil {
+			return nil, fmt.Errorf("error converting response to connection: %w", err)
+		} else {
+			return &connection, nil
+		}
+	} else {
+		return nil, fmt.Errorf("no document found with url id")
+	}
+}
+
 func (r *Reader) Many(opts query.Options, wheres ...query.Where) (*[]connections.Connection, error) {
 
 	q := dbFirestore.GenerateQuery(r.db.Query, opts, wheres...)

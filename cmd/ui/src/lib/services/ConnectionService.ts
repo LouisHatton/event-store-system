@@ -40,6 +40,10 @@ export class ConnectionService {
 			connection
 		);
 	}
+
+	delete(projectId: string, connectionId: string): Promise<unknown> {
+		return NetworkService.delete(`/api/v1/projects/${projectId}/connections/${connectionId}`);
+	}
 }
 
 export default new ConnectionService();

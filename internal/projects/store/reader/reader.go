@@ -49,6 +49,30 @@ func (r *Reader) Get(id string) (*projects.Project, error) {
 	return project, nil
 }
 
+func (r *Reader) One(opts query.Options, wheres ...query.Where) (*projects.Project, error) {
+	var limit int = 1
+	opts.Limit = &limit
+	q := dbFirestore.GenerateQuery(r.db.Query, opts, wheres...)
+
+	itr := q.Documents(context.TODO())
+	snapshots, err := itr.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching all documents: %w", err)
+	}
+
+	for _, snap := range snapshots {
+		project := projects.Empty()
+		err = snap.DataTo(&project)
+		if err != nil {
+			return nil, fmt.Errorf("error converting response to project struct: %w", err)
+		} else {
+			return project, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no projects found with query")
+}
+
 func (r *Reader) Many(opts query.Options, wheres ...query.Where) (*[]projects.Project, error) {
 
 	q := r.db.Query

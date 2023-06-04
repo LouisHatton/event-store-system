@@ -15,6 +15,8 @@ import (
 	connectionsStore "github.com/LouisHatton/insight-wave/internal/connections/store"
 	connectionsStoreReader "github.com/LouisHatton/insight-wave/internal/connections/store/reader"
 	connectionsStoreWriter "github.com/LouisHatton/insight-wave/internal/connections/store/writer"
+	eventsStore "github.com/LouisHatton/insight-wave/internal/events/store"
+	events_store_writer "github.com/LouisHatton/insight-wave/internal/events/store/writer"
 	projectsStore "github.com/LouisHatton/insight-wave/internal/projects/store"
 	projectsStoreReader "github.com/LouisHatton/insight-wave/internal/projects/store/reader"
 	projectsStoreWriter "github.com/LouisHatton/insight-wave/internal/projects/store/writer"
@@ -26,6 +28,7 @@ import (
 type config struct {
 	appconfig.Enviroment
 	appconfig.Server
+	appconfig.TinyBird
 }
 
 func main() {
@@ -100,10 +103,15 @@ func main() {
 	}
 	connectionStore := connectionsStore.New(connectionReader, connectionWriter)
 
+	// --- Events Store
+	eventsWriterTinybird := events_store_writer.New(*logger, &cfg.TinyBird.DatasourcesCreateToken, &cfg.DatasourcesDeleteToken)
+
+	var eventsWriter eventsStore.Writer = eventsWriterTinybird
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	api, err := api.New(logger, cfg.Enviroment.CurrentEnv, authMiddleware, projectStore, connectionStore)
+	api, err := api.New(logger, cfg.Enviroment.CurrentEnv, authMiddleware, projectStore, connectionStore, &eventsWriter)
 	if err != nil {
 		logger.Fatal("error initializing api", zap.Error(err))
 	}

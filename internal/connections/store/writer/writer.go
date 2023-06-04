@@ -40,3 +40,16 @@ func (r *Writer) Set(id string, connection *connections.Connection) error {
 
 	return nil
 }
+
+func (w *Writer) Delete(id string) error {
+	logger := w.l.With(zap.String("connectionId", id))
+
+	logger.Debug("deleting connection doc")
+	_, err := w.db.Doc(id).Delete(context.TODO())
+	if err != nil {
+		return fmt.Errorf("error deleting connection doc: %w", err)
+	}
+	logger.Debug("connection doc deleted")
+
+	return nil
+}

@@ -7,6 +7,7 @@
 	import { connection } from './store';
 	import LoadingButton from '$lib/components/LoadingButton.svelte';
 	import ConnectionService, { type NewConnection } from '$lib/services/ConnectionService';
+	import { goto } from '$app/navigation';
 
 	let connectionName = '';
 	let updatingConnection = false;
@@ -33,6 +34,17 @@
 			alert('failed to update connection, please try again later');
 		} finally {
 			updatingConnection = false;
+		}
+	}
+
+	async function handleDeleteConnection() {
+		if (!$connection) return;
+		try {
+			await ConnectionService.delete($connection.projectId, $connection.id);
+			goto('/connections');
+		} catch (err: unknown) {
+			console.log(err);
+			alert('error deleting connection, please try again later');
 		}
 	}
 </script>
@@ -67,7 +79,7 @@
 						</div>
 						<div class="mt-12">
 							<p class="font-semibold mb-4">Danger Zone</p>
-							<Button color="red">Delete Connection</Button>
+							<Button color="red" on:click={handleDeleteConnection}>Delete Connection</Button>
 						</div>
 					</Card>
 				</div>
